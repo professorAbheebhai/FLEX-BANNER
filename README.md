@@ -1,4 +1,4 @@
-# ⚡ PROFESSOR ULTIMATE ⚡
+# ⚡ PROFESSOR ⚡
 
 <div align="center">
 
