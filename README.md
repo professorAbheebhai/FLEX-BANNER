@@ -45,6 +45,6 @@ FLEX ZONE OFFICIAL is a **cinematic CLI tool** designed for:
 ```bash
 pkg update && pkg upgrade
 pkg install python git
-git clone https://github.com/Abeerking12/FLEX-BANNER.git
+git clone https://github.com/professorAbheebhai/FLEX-BANNER
 cd FLEX-BANNER
 python report_tool.py
