@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ImgVault Pro — Premium Gallery</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23667eea'><rect x='3' y='3' width='18' height='18' rx='4'/><circle cx='8.5' cy='8.5' r='1.5'/><polyline points='21 15 16 10 5 21'/></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <style>
+        /* ============================================================
+           ROOT VARIABLES
+           ============================================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd6;
+            --secondary: #764ba2;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-hover: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            --bg: #f0f2f8;
+            --bg-card: #ffffff;
+            --bg-glass: rgba(255,255,255,0.75);
+            --text: #111827;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --border: #e5e7eb;
+            --shadow: 0 4px 24px rgba(0,0,0,0.06);
+            --shadow-hover: 0 16px 48px rgba(0,0,0,0.12);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+            --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .dark-theme {
+            --bg: #0c0c18;
+            --bg-card: #16162e;
+            --bg-glass: rgba(22,22,46,0.85);
+            --text: #f1f1f6;
+            --text-muted: #9ca3af;
+            --border: #2d2d44;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+            --shadow-hover: 0 16px 48px rgba(0,0,0,0.5);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.3s, color 0.3s;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+        /* ============================================================
+           BUTTONS
+           ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(102,126,234,0.35);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(102,126,234,0.5);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(102,126,234,0.06);
+        }
+        .btn-sm { padding: 6px 16px; font-size: 13px; gap: 6px; }
+
+        /* ============================================================
+           TOAST
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            padding: 14px 22px;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            animation: slideUp 0.35s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        .toast.info { background: var(--gradient); }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ============================================================
+           NAVBAR
+           ============================================================ */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+            transition: background 0.3s;
+        }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .brand-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 18px;
+        }
+        .brand-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .brand-name .highlight { color: var(--primary); }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-wrap i {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .search-wrap input {
+            padding: 10px 16px 10px 44px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            width: 240px;
+            transition: var(--transition);
+            font-family: var(--font);
+        }
+        .search-wrap input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.12);
+            width: 290px;
+        }
+        .theme-toggle {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text);
+            transition: var(--transition);
+            font-size: 16px;
+        }
+        .theme-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* ============================================================
+           HERO
+           ============================================================ */
+        .hero {
+            padding: 60px 0 40px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(102,126,234,0.12);
+            color: var(--primary);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.08;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+        .hero h1 span {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 480px;
+            margin: 0 auto 28px;
+        }
+        .hero-stats {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 36px;
+        }
+        .hero-stats .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hero-stats .stat .num {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .hero-stats .stat .label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .hero-stats .divider {
+            width: 1px;
+            height: 40px;
+            background: var(--border);
+        }
+        .hero-deco {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .hero-deco .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--gradient);
+            opacity: 0.05;
+        }
+        .hero-deco .c1 { width: 400px; height: 400px; top: -200px; right: -100px; }
+        .hero-deco .c2 { width: 300px; height: 300px; bottom: -120px; left: -80px; }
+        .hero-deco .c3 { width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+        /* ============================================================
+           FILTERS
+           ============================================================ */
+        .filters {
+            padding: 8px 0 24px;
+        }
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .filter-bar .left h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .filter-bar .right {
+            display: flex;
+            gap: 8px;
+        }
+        .filter-btn {
+            padding: 8px 22px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+        }
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--text);
+        }
+        .filter-btn.active {
+            background: var(--gradient);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.3);
+        }
+
+        /* ============================================================
+           POSTS GRID
+           ============================================================ */
+        .posts-section {
+            padding: 0 0 60px;
+        }
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        /* ===== POST CARD ===== */
+        .post-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+        .post-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+        .post-card .card-img {
+            position: relative;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: var(--border);
+        }
+        .post-card .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        .post-card:hover .card-img img { transform: scale(1.04); }
+        .post-card .card-img .badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .post-card .card-body {
+            padding: 18px 20px 20px;
+        }
+        .post-card .card-body .title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .post-card .card-body .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .post-card .card-body .footer .date {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .post-card .cta-btn {
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .post-card .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102,126,234,0.35);
+        }
+
+        /* ===== SKELETON ===== */
+        .skeleton {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .skeleton .img { aspect-ratio: 16/9; background: var(--border); animation: shimmer 1.5s infinite; }
+        .skeleton .line1 { height: 20px; margin: 16px 20px 12px; background: var(--border); border-radius: 6px; animation: shimmer 1.5s infinite; }
+        .skeleton .line2 { height: 36px; margin: 0 20px 20px; background: var(--border); border-radius: 8px; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ===== LOAD MORE ===== */
+        .load-more { text-align: center; margin-top: 36px; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state i { font-size: 48px; color: var(--text-muted); opacity: 0.4; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 20px; color: var(--text); margin-bottom: 4px; }
+        .empty-state p { color: var(--text-muted); }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 40px 0 20px;
+            margin-top: 40px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 40px;
+            align-items: start;
+        }
+        .footer-brand .brand-icon.small {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+        .footer-brand span {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .footer-brand .tagline {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        .footer-links a:hover { color: var(--primary); }
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .footer-social a:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 34px; }
+            .hero-stats { gap: 20px; }
+            .search-wrap input { width: 150px; }
+            .search-wrap input:focus { width: 180px; }
+            .posts-grid { grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 16px; }
+            .footer-grid { grid-template-columns: 1fr; text-align: center; gap: 24px; }
+            .footer-social { justify-content: center; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-bar .right { justify-content: center; }
+        }
+        @media (max-width: 480px) {
+            .nav-container { flex-wrap: wrap; }
+            .nav-controls { width: 100%; justify-content: space-between; }
+            .search-wrap input { width: 100%; }
+            .search-wrap input:focus { width: 100%; }
+            .hero h1 { font-size: 28px; }
+            .posts-grid { grid-template-columns: 1fr; }
+            .hero-stats .stat .num { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="navbar-brand">
+                <div class="brand-icon"><i class="fas fa-images"></i></div>
+                <span class="brand-name">ImgVault<span class="highlight">Pro</span></span>
+            </a>
+            <div class="nav-controls">
+                <div class="search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search images..." />
+                </div>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="admin.html" class="btn btn-primary btn-sm" id="adminLink">
+                    <i class="fas fa-crown"></i> Admin
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="hero-deco">
+            <div class="circle c1"></div>
+            <div class="circle c2"></div>
+            <div class="circle c3"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge"><span class="dot"></span> Premium Gallery</div>
+                <h1>Discover Amazing <span>Visual Stories</span></h1>
+                <p>Curated collection of stunning images with direct access to high-quality content.</p>
+                <div class="hero-stats">
+                    <div class="stat"><span class="num" id="heroCount">0</span><span class="label">Images</span></div>
+                    <div class="divider"></div>
+                    <div class="stat"><span class="num">4.9</span><span class="label">Rating</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FILTERS ===== -->
+    <section class="filters">
+        <div class="container">
+            <div class="filter-bar">
+                <div class="left"><h2 id="postsCount">Loading posts...</h2></div>
+                <div class="right">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="recent">Recent</button>
+                    <button class="filter-btn" data-filter="popular">Popular</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== POSTS ===== -->
+    <section class="posts-section">
+        <div class="container">
+            <div class="posts-grid" id="postsGrid"></div>
+            <div class="load-more" id="loadMoreWrap">
+                <button class="btn btn-outline" id="loadMoreBtn"><i class="fas fa-arrow-down"></i> Load More</button>
+            </div>
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <i class="fas fa-image"></i>
+                <h3>No images found</h3>
+                <p>Check back later for new uploads.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand-icon small"><i class="fas fa-images"></i></div>
+                    <span>ImgVault Pro</span>
+                    <div class="tagline">Premium image discovery platform.</div>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-shield-alt"></i> Privacy</a>
+                    <a href="#"><i class="fas fa-file-contract"></i> Terms</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                </div>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 ImgVault Pro. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================================================
+    FIREBASE SDK + USER PANEL LOGIC
+    ============================================================ -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, onAuthStateChanged } from "firebase/auth";
+        import { getFirestore, collection, query, where, orderBy, onSnapshot, limit, startAfter, getDocs } from "firebase/firestore";
+
+        // ============================================================
+        // 🔥 FIREBASE CONFIG — Aapki di hui config
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA9Ixsw2OXMeAgGBdl30FkBSWGkcGopegM",
+            authDomain: "wegothub.firebaseapp.com",
+            projectId: "wegothub",
+            storageBucket: "wegothub.firebasestorage.app",
+            messagingSenderId: "220164851199",
+            appId: "1:220164851199:web:ab9da9b696f5edd79453ca"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const postsRef = collection(db, "posts");
+
+        // ===== DOM REFS =====
+        const grid = document.getElementById("postsGrid");
+        const loadMoreBtn = document.getElementById("loadMoreBtn");
+        const loadMoreWrap = document.getElementById("loadMoreWrap");
+        const emptyState = document.getElementById("emptyState");
+        const postsCount = document.getElementById("postsCount");
+        const heroCount = document.getElementById("heroCount");
+        const searchInput = document.getElementById("searchInput");
+        const adminLink = document.getElementById("adminLink");
+
+        let allPosts = [];
+        let lastVisible = null;
+        let isLoading = false;
+        let hasMore = true;
+        let searchTerm = "";
+
+        // ===== TOAST =====
+        function showToast(msg, type = "success") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // ===== FORMAT DATE =====
+        function formatDate(d) {
+            if (!d) return "N/A";
+            const date = d instanceof Date ? d : new Date(d);
+            return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+        }
+
+        // ===== RENDER POSTS =====
+        function renderPosts(posts) {
+            if (!posts || posts.length === 0) {
+                grid.innerHTML = "";
+                emptyState.style.display = "block";
+                postsCount.textContent = "No posts found";
+                heroCount.textContent = "0";
+                return;
+            }
+            emptyState.style.display = "none";
+            postsCount.textContent = `${posts.length} posts`;
+            heroCount.textContent = posts.length;
+
+            grid.innerHTML = posts.map(p => `
+                <div class="post-card" data-id="${p.id}" data-image="${p.imageUrl || '#'}">
+                    <div class="card-img">
+                        <img src="${p.imageUrl || '#'}" alt="${p.title || 'Image'}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22168%22%3E%3Crect width=%22300%22 height=%22168%22 fill=%22%23e5e7eb%22/%3E%3Ctext x=%22150%22 y=%2290%22 text-anchor=%22middle%22 fill=%22%236b7280%22 font-family=%22sans-serif%22%3ENo Image%3C/text%3E%3C/svg%3E'" />
+                        ${p.published ? `<span class="badge">● Published</span>` : ''}
+                    </div>
+                    <div class="card-body">
+                        <div class="title">${p.title || 'Untitled'}</div>
+                        <div class="footer">
+                            <span class="date"><i class="far fa-calendar-alt"></i> ${formatDate(p.createdAt)}</span>
+                            ${p.destinationUrl ? `<a href="${p.destinationUrl}" target="_blank" rel="noopener noreferrer" class="cta-btn" data-id="${p.id}" data-dest="${p.destinationUrl}"><i class="fas fa-external-link-alt"></i> Open</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        // ===== SKELETON =====
+        function renderSkeletons(count = 8) {
+            grid.innerHTML = Array.from({ length: count }, () => `
+                <div class="skeleton">
+                    <div class="img"></div>
+                    <div class="line1"></div>
+                    <div class="line2"></div>
+                </div>
+            `).join("");
+        }
+
+        // ===== DEBOUNCE =====
+        function debounce(fn, delay) {
+            let timer;
+            return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+        }
+
+        // ===== REAL-TIME LISTENER =====
+        function listenPosts() {
+            const q = query(postsRef, where("published", "==", true), orderBy("createdAt", "desc"), limit(12));
+            return onSnapshot(q, (snap) => {
+                const posts = [];
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    posts.push({ id: doc.id, ...d, createdAt: d.createdAt?.toDate?.() || new Date() });
+                });
+                allPosts = posts;
+                lastVisible = posts.length > 0 ? posts[posts.length - 1] : null;
+                hasMore = posts.length === 12;
+                renderPosts(allPosts);
+                if (!hasMore) loadMoreWrap.style.display = "none";
+                else loadMoreWrap.style.display = "block";
+            }, (err) => {
+                console.error(err);
+                showToast("Error loading posts", "error");
+            });
+        }
+
+        // ===== LOAD MORE =====
+        async function loadMore() {
+            if (isLoading || !hasMore || !lastVisible) return;
+            isLoading = true;
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+            try {
+                const q = query(postsRef, where("published", "==", true), orderBy("createdAt", "desc"), startAfter(lastVisible.createdAt), limit(12));
+                const snap = await getDocs(q);
+                const newPosts = [];
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    newPosts.push({ id: doc.id, ...d, createdAt: d.createdAt?.toDate?.() || new Date() });
+                });
+                if (newPosts.length > 0) {
+                    allPosts = [...allPosts, ...newPosts];
+                    lastVisible = newPosts[newPosts.length - 1];
+                    renderPosts(allPosts);
+                }
+                hasMore = newPosts.length === 12;
+                if (!hasMore) loadMoreWrap.style.display = "none";
+            } catch (err) {
+                showToast("Failed to load more", "error");
+            } finally {
+                isLoading = false;
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.innerHTML = '<i class="fas fa-arrow-down"></i> Load More';
+            }
+        }
+
+        // ===== SEARCH =====
+        const handleSearch = debounce((term) => {
+            searchTerm = term.trim().toLowerCase();
+            const filtered = allPosts.filter(p => p.title?.toLowerCase().includes(searchTerm));
+            renderPosts(filtered);
+            if (filtered.length === 0) {
+                emptyState.style.display = "block";
+                postsCount.textContent = "No results";
+            } else {
+                emptyState.style.display = "none";
+                postsCount.textContent = `${filtered.length} results`;
+            }
+        }, 300);
+
+        // ===== THEME =====
+        document.getElementById("themeToggle").addEventListener("click", () => {
+            document.documentElement.classList.toggle("dark-theme");
+            const icon = document.querySelector("#themeToggle i");
+            icon.className = document.documentElement.classList.contains("dark-theme") ? "fas fa-sun" : "fas fa-moon";
+        });
+
+        // ===== FILTERS =====
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                renderPosts(allPosts);
+            });
+        });
+
+        // ===== TRACK CLICKS =====
+        document.addEventListener("click", (e) => {
+            const cta = e.target.closest(".cta-btn");
+            if (cta) {
+                const id = cta.dataset.id;
+                console.log(`📊 CTA clicked for post: ${id}`);
+            }
+            const card = e.target.closest(".post-card");
+            if (card && !e.target.closest(".cta-btn")) {
+                const id = card.dataset.id;
+                console.log(`📊 Image clicked for post: ${id}`);
+            }
+        });
+
+        // ===== CHECK AUTH FOR ADMIN LINK =====
+        onAuthStateChanged(auth, (user) => {
+            if (user) adminLink.style.display = "inline-flex";
+        });
+
+        // ===== INIT =====
+        renderSkeletons(8);
+        listenPosts();
+        loadMoreBtn.addEventListener("click", loadMore);
+        searchInput.addEventListener("input", (e) => handleSearch(e.target.value));
+
+        console.log("🚀 ImgVault Pro — User Panel Ready");
+    </script>
+</body>
+</html>
